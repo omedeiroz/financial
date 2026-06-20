@@ -1,0 +1,92 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.hero {
+  padding: 10px 24px 4px;
+  text-align: center;
+}
+
+.heroEyebrow {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+
+.heroValue {
+  font-family: var(--font-serif);
+  font-size: 54px;
+  font-style: italic;
+  color: var(--ink-1);
+  letter-spacing: -0.025em;
+  line-height: 1;
+}
+
+.stats {
+  padding: 8px 24px 12px;
+  display: flex;
+}
+
+.stat {
+  flex: 1;
+  text-align: center;
+}
+
+.statBorder {
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+.statNum {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink-1);
+}
+
+.statLabel {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  letter-spacing: 0.06em;
+  margin-top: 3px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0 20px 12px;
+}
+
+.sectionLabel {
+  padding: 0 20px 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  letter-spacing: 0.08em;
+}
+
+.list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 20px 80px;
+}
+
+.empty {
+  text-align: center;
+  color: var(--ink-4);
+  font-size: 13px;
+  padding-top: 40px;
+}

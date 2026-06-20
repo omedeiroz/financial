@@ -1,0 +1,29 @@
+.nav {
+  padding: 12px 20px 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+}
+
+.chevron {
+  color: var(--ink-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.chevron:hover {
+  color: var(--ink-2);
+}
+
+.label {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--ink-2);
+  min-width: 100px;
+  text-align: center;
+}

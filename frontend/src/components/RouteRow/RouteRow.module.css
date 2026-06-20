@@ -1,0 +1,62 @@
+.row {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-sub);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.bar {
+  width: 3px;
+  height: 38px;
+  background: var(--accent);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge {
+  background: var(--accent-soft);
+  border: 1px solid rgba(226, 97, 68, 0.2);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 10px;
+  color: var(--accent-ink);
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+}
+
+.detail {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-top: 3px;
+  display: block;
+}
+
+.value {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ok);
+  flex-shrink: 0;
+}
