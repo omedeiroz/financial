@@ -3,16 +3,26 @@
   gap: 5px;
   padding: 0 16px 10px;
   border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.strip::-webkit-scrollbar {
+  display: none;
 }
 
 .chip {
-  flex: 1;
+  flex-shrink: 0;
+  width: 44px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
   padding: 6px 2px;
   border-radius: 8px;
+  scroll-snap-align: center;
   transition: background var(--dur-fast) var(--ease-out);
 }
 

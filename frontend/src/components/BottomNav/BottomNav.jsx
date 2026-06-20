@@ -7,6 +7,7 @@ export default function BottomNav({ selectedDate }) {
   const { pathname } = useLocation();
 
   const isHome = pathname === '/';
+  const isRoutes = pathname === '/routes';
   const isHistory = pathname === '/history';
 
   function handleNew() {
@@ -25,14 +26,17 @@ export default function BottomNav({ selectedDate }) {
       </button>
 
       <button
-        className={`${styles.tab} ${isHistory ? styles.active : ''}`}
-        onClick={() => navigate('/history')}
+        className={`${styles.tab} ${isRoutes ? styles.active : ''}`}
+        onClick={() => navigate('/routes')}
       >
         <List size={20} strokeWidth={1.8} />
+        <span className={styles.label}>Rotas</span>
       </button>
 
       <button className={styles.addBtn} onClick={handleNew}>
-        <Plus size={20} strokeWidth={2} color="#fff" />
+        <div>
+          <Plus size={20} strokeWidth={2} color="#fff" />
+        </div>
       </button>
 
       <button
@@ -40,10 +44,12 @@ export default function BottomNav({ selectedDate }) {
         onClick={() => navigate('/history')}
       >
         <BarChart2 size={20} strokeWidth={1.8} />
+        <span className={styles.label}>Mês</span>
       </button>
 
       <button className={styles.tab}>
         <User size={20} strokeWidth={1.8} />
+        <span className={styles.label}>Perfil</span>
       </button>
     </nav>
   );

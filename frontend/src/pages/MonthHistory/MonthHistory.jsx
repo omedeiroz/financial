@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useMonthlySummary, useDailySummary } from '../../hooks/useSummary';
 import { formatCurrency, formatNumber, formatMonthCapitalized, toMonthStr, toDateStr } from '../../utils/format';
+import BottomNav from '../../components/BottomNav/BottomNav';
 import styles from './MonthHistory.module.css';
 
 const PT_WEEKDAYS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
@@ -112,6 +113,8 @@ export default function MonthHistory() {
           })
         )}
       </div>
+
+      <BottomNav />
     </div>
   );
 }

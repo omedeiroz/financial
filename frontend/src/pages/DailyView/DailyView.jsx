@@ -55,7 +55,7 @@ export default function DailyView() {
     <div className={styles.page}>
       <MonthNav month={month} onPrev={handlePrevMonth} onNext={handleNextMonth} />
 
-      <DateStrip selectedDate={selectedDate} onSelect={handleSelectDate} />
+      <DateStrip selectedDate={selectedDate} month={month} onSelect={handleSelectDate} />
 
       <div className={styles.hero}>
         <span className={styles.heroEyebrow}>VALOR LÍQUIDO HOJE</span>
