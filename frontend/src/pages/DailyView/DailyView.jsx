@@ -26,7 +26,7 @@ export default function DailyView() {
   const [selectedDate, setSelectedDate] = useState(initialDate);
   const [month, setMonth] = useState(getMonthFromDate(initialDate));
 
-  const { data: routes = [], isLoading } = useRoutesByDate(selectedDate);
+  const { data: routes = [], isLoading, isError, refetch } = useRoutesByDate(selectedDate);
   const { data: summary } = useMonthlySummary(month);
 
   const dailyTotal = routes.reduce((sum, r) => sum + Number(r.final_value), 0);
@@ -83,7 +83,15 @@ export default function DailyView() {
 
       <div className={styles.list}>
         {isLoading ? (
-          <div className={styles.empty}>Carregando...</div>
+          <div className={styles.feedback}>
+            <div className={styles.spinner} />
+            <span>Carregando...</span>
+          </div>
+        ) : isError ? (
+          <div className={styles.feedback}>
+            <span>Erro ao carregar rotas.</span>
+            <button className={styles.retryBtn} onClick={() => refetch()}>Tentar novamente</button>
+          </div>
         ) : routes.length === 0 ? (
           <div className={styles.empty}>Nenhuma rota registrada hoje</div>
         ) : (

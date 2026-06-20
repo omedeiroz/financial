@@ -190,12 +190,21 @@
 }
 
 .backupField {
-  padding: 0 14px 14px;
+  padding: 12px 14px 14px;
   display: flex;
   flex-direction: column;
   gap: 6px;
   border-top: 1px solid var(--border);
-  padding-top: 12px;
+}
+
+.backupField .inputPrefix input {
+  background: var(--bg);
+  border-color: var(--border);
+}
+
+.backupField .inputPrefix input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(226, 97, 68, 0.15);
 }
 
 /* Fuel card */

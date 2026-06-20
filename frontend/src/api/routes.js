@@ -8,36 +8,55 @@ async function handleResponse(res) {
   return res.json();
 }
 
+async function apiFetch(url, options = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 20000); // 20s timeout para o Render acordar
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(timer);
+    return handleResponse(res);
+  } catch (err) {
+    clearTimeout(timer);
+    if (err.name === 'AbortError') {
+      throw new Error('Servidor demorou para responder. Tente novamente.');
+    }
+    if (err.name === 'TypeError') {
+      throw new Error('Sem conexão com o servidor.');
+    }
+    throw err;
+  }
+}
+
 export const api = {
   getByDate: (date) =>
-    fetch(`${BASE}/api/routes?date=${date}`).then(handleResponse),
+    apiFetch(`${BASE}/api/routes?date=${date}`),
 
   getByMonth: (month) =>
-    fetch(`${BASE}/api/routes?month=${month}`).then(handleResponse),
+    apiFetch(`${BASE}/api/routes?month=${month}`),
 
   getMonthlySummary: (month) =>
-    fetch(`${BASE}/api/routes/monthly-summary?month=${month}`).then(handleResponse),
+    apiFetch(`${BASE}/api/routes/monthly-summary?month=${month}`),
 
   getDailySummary: (month) =>
-    fetch(`${BASE}/api/routes/daily-summary?month=${month}`).then(handleResponse),
+    apiFetch(`${BASE}/api/routes/daily-summary?month=${month}`),
 
   getOne: (id) =>
-    fetch(`${BASE}/api/routes/${id}`).then(handleResponse),
+    apiFetch(`${BASE}/api/routes/${id}`),
 
   create: (body) =>
-    fetch(`${BASE}/api/routes`, {
+    apiFetch(`${BASE}/api/routes`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
-    }).then(handleResponse),
+    }),
 
   update: (id, body) =>
-    fetch(`${BASE}/api/routes/${id}`, {
+    apiFetch(`${BASE}/api/routes/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
-    }).then(handleResponse),
+    }),
 
   delete: (id) =>
-    fetch(`${BASE}/api/routes/${id}`, { method: 'DELETE' }).then(handleResponse),
+    apiFetch(`${BASE}/api/routes/${id}`, { method: 'DELETE' }),
 };

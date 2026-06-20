@@ -205,7 +205,7 @@ export default function RouteForm() {
               <div className={styles.inputPrefix}>
                 <span className={styles.prefix}>R$</span>
                 <input
-                  className={`${styles.inputSunken} ${errors.backup_value ? styles.inputError : ''}`}
+                  className={`${styles.input} ${errors.backup_value ? styles.inputError : ''}`}
                   type="number"
                   placeholder="0,00"
                   value={form.backup_value}

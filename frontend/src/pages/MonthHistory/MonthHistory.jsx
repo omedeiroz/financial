@@ -15,18 +15,16 @@ function addMonths(monthStr, delta) {
   return toMonthStr(d);
 }
 
-function todayStr() {
-  return toDateStr(new Date());
-}
-
 export default function MonthHistory() {
   const navigate = useNavigate();
   const [month, setMonth] = useState(toMonthStr(new Date()));
+  const today = toDateStr(new Date());
 
-  const { data: summary } = useMonthlySummary(month);
-  const { data: days = [] } = useDailySummary(month);
+  const { data: summary, isLoading: loadingSummary, isError: errorSummary, refetch: refetchSummary } = useMonthlySummary(month);
+  const { data: days = [], isLoading: loadingDays, isError: errorDays, refetch: refetchDays } = useDailySummary(month);
 
-  const today = todayStr();
+  const isLoading = loadingSummary || loadingDays;
+  const isError = errorSummary || errorDays;
 
   function formatDayStr(dayStr) {
     const [y, m, d] = dayStr.split('-').map(Number);
@@ -78,11 +76,28 @@ export default function MonthHistory() {
 
       <div className={styles.sectionHeader}>
         <span className={styles.sectionLabel}>DIAS DO MÊS</span>
-        <span className={styles.sectionCount}>{days.length} com rotas</span>
+        {!isLoading && !isError && (
+          <span className={styles.sectionCount}>{days.length} com rotas</span>
+        )}
       </div>
 
       <div className={styles.list}>
-        {days.length === 0 ? (
+        {isLoading ? (
+          <div className={styles.feedback}>
+            <div className={styles.spinner} />
+            <span>Carregando...</span>
+          </div>
+        ) : isError ? (
+          <div className={styles.feedback}>
+            <span className={styles.errorMsg}>Erro ao carregar dados.</span>
+            <button
+              className={styles.retryBtn}
+              onClick={() => { refetchSummary(); refetchDays(); }}
+            >
+              Tentar novamente
+            </button>
+          </div>
+        ) : days.length === 0 ? (
           <div className={styles.empty}>Nenhuma rota neste mês</div>
         ) : (
           days.map((day) => {
