@@ -25,7 +25,7 @@ export default defineConfig({
       workbox: {
         runtimeCaching: [
           {
-            urlPattern: /^http:\/\/localhost:3001\/.*/,
+            urlPattern: /^https:\/\/financial-gp0w\.onrender\.com\/.*/,
             handler: 'NetworkFirst',
             options: { cacheName: 'api-cache', expiration: { maxEntries: 50 } },
           },
