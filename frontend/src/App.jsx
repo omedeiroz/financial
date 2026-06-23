@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
+import { useKeepAlive } from './hooks/useKeepAlive';
 import DailyView from './pages/DailyView/DailyView';
 import MonthHistory from './pages/MonthHistory/MonthHistory';
 import RoutesList from './pages/RoutesList/RoutesList';
@@ -8,23 +10,30 @@ import RouteDetail from './pages/RouteDetail/RouteDetail';
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { staleTime: 30_000, retry: 1 },
+    queries: { staleTime: 30_000, retry: 2 },
   },
 });
+
+function AppRoutes() {
+  useKeepAlive();
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<ErrorBoundary><DailyView /></ErrorBoundary>} />
+        <Route path="/routes" element={<ErrorBoundary><RoutesList /></ErrorBoundary>} />
+        <Route path="/routes/new" element={<ErrorBoundary><RouteForm /></ErrorBoundary>} />
+        <Route path="/routes/:id" element={<ErrorBoundary><RouteDetail /></ErrorBoundary>} />
+        <Route path="/routes/:id/edit" element={<ErrorBoundary><RouteForm /></ErrorBoundary>} />
+        <Route path="/history" element={<ErrorBoundary><MonthHistory /></ErrorBoundary>} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
 
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<DailyView />} />
-          <Route path="/routes" element={<RoutesList />} />
-          <Route path="/routes/new" element={<RouteForm />} />
-          <Route path="/routes/:id" element={<RouteDetail />} />
-          <Route path="/routes/:id/edit" element={<RouteForm />} />
-          <Route path="/history" element={<MonthHistory />} />
-        </Routes>
-      </BrowserRouter>
+      <AppRoutes />
     </QueryClientProvider>
   );
 }

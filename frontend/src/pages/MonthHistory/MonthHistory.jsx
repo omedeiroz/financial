@@ -27,11 +27,16 @@ export default function MonthHistory() {
   const isError = errorSummary || errorDays;
 
   function formatDayStr(dayStr) {
-    const [y, m, d] = dayStr.split('-').map(Number);
-    const date = new Date(y, m - 1, d);
-    const weekday = PT_WEEKDAYS[date.getDay()];
-    const monthAbbr = PT_MONTHS_ABBR[m - 1];
-    return { weekday, day: d, month: monthAbbr, isToday: dayStr === today };
+    try {
+      const clean = String(dayStr).slice(0, 10); // garante 'YYYY-MM-DD'
+      const [y, m, d] = clean.split('-').map(Number);
+      const date = new Date(y, m - 1, d);
+      const weekday = PT_WEEKDAYS[date.getDay()] ?? 'Seg';
+      const monthAbbr = PT_MONTHS_ABBR[m - 1] ?? '';
+      return { weekday, day: d, month: monthAbbr, isToday: clean === today };
+    } catch {
+      return { weekday: '—', day: 0, month: '', isToday: false };
+    }
   }
 
   return (
