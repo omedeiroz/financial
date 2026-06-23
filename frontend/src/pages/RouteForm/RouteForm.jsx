@@ -5,13 +5,14 @@ import { useRoute, useCreateRoute, useUpdateRoute } from '../../hooks/useRoutes'
 import { calcFinalValue, formatCurrency } from '../../utils/format';
 import styles from './RouteForm.module.css';
 
+const BACKUP_VALUE = 140;
+
 const empty = {
   name: '',
   km_initial: '',
   km_final: '',
   route_value: '',
   has_backup: false,
-  backup_value: '',
   gnv_cost: '',
   gasoline_cost: '',
 };
@@ -37,7 +38,6 @@ export default function RouteForm() {
         km_final: existing.km_final,
         route_value: existing.route_value,
         has_backup: existing.has_backup,
-        backup_value: existing.backup_value || '',
         gnv_cost: existing.gnv_cost || '',
         gasoline_cost: existing.gasoline_cost || '',
       });
@@ -51,7 +51,7 @@ export default function RouteForm() {
   const finalValue = calcFinalValue({
     route_value: form.route_value || 0,
     has_backup: form.has_backup,
-    backup_value: form.backup_value || 0,
+    backup_value: BACKUP_VALUE,
     gnv_cost: form.gnv_cost || 0,
     gasoline_cost: form.gasoline_cost || 0,
   });
@@ -67,8 +67,6 @@ export default function RouteForm() {
     if (form.km_final !== '' && form.km_initial !== '' && Number(form.km_final) < Number(form.km_initial))
       e.km_final = 'Km final deve ser ≥ km inicial';
     if (!form.route_value || Number(form.route_value) <= 0) e.route_value = 'Valor da rota obrigatório';
-    if (form.has_backup && (!form.backup_value || Number(form.backup_value) <= 0))
-      e.backup_value = 'Valor do backup obrigatório';
     return e;
   }
 
@@ -84,7 +82,7 @@ export default function RouteForm() {
       km_final: Number(form.km_final) || 0,
       route_value: Number(form.route_value),
       has_backup: form.has_backup,
-      backup_value: form.has_backup ? Number(form.backup_value) : 0,
+      backup_value: form.has_backup ? BACKUP_VALUE : 0,
       gnv_cost: Number(form.gnv_cost) || 0,
       gasoline_cost: Number(form.gasoline_cost) || 0,
     };
@@ -107,7 +105,7 @@ export default function RouteForm() {
 
   const dateLabel = date
     ? (() => {
-        const [, m, d] = date.split('-');
+        const [, m, d] = String(date).slice(0, 10).split('-');
         const months = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
         return `${d} ${months[parseInt(m, 10) - 1]}`;
       })()
@@ -190,7 +188,7 @@ export default function RouteForm() {
           <div className={styles.backupHeader}>
             <div>
               <span className={styles.backupTitle}>Backup</span>
-              <span className={styles.backupDesc}>Adicional ao valor da rota</span>
+              <span className={styles.backupDesc}>+ R$ 140,00 ao valor da rota</span>
             </div>
             <button
               className={`${styles.toggle} ${form.has_backup ? styles.toggleOn : ''}`}
@@ -199,22 +197,6 @@ export default function RouteForm() {
               <span className={styles.thumb} />
             </button>
           </div>
-          {form.has_backup && (
-            <div className={styles.backupField}>
-              <label className={styles.label}>Valor do backup</label>
-              <div className={styles.inputPrefix}>
-                <span className={styles.prefix}>R$</span>
-                <input
-                  className={`${styles.inputBackup} ${errors.backup_value ? styles.inputError : ''}`}
-                  type="number"
-                  placeholder="0,00"
-                  value={form.backup_value}
-                  onChange={(e) => set('backup_value', e.target.value)}
-                />
-              </div>
-              {errors.backup_value && <span className={styles.error}>{errors.backup_value}</span>}
-            </div>
-          )}
         </div>
 
         <div className={styles.fuelCard}>
@@ -249,7 +231,7 @@ export default function RouteForm() {
         <div className={styles.preview}>
           <span className={styles.previewLabel}>VALOR FINAL</span>
           <span className={styles.previewFormula}>
-            {`R$${Number(form.route_value) || 0}${form.has_backup ? ` + R$${Number(form.backup_value) || 0}` : ''} × 87,5%${Number(form.gnv_cost) > 0 ? ` − R$${form.gnv_cost}` : ''}${Number(form.gasoline_cost) > 0 ? ` − R$${form.gasoline_cost}` : ''}`}
+            {`(R$${Number(form.route_value) || 0}${form.has_backup ? ' + R$140' : ''}) × 87,5%${Number(form.gnv_cost) > 0 ? ` − R$${form.gnv_cost}` : ''}${Number(form.gasoline_cost) > 0 ? ` − R$${form.gasoline_cost}` : ''}`}
           </span>
           <span className={`${styles.previewValue} ${finalValue >= 0 ? styles.previewOk : ''}`}>
             {formatCurrency(finalValue)}

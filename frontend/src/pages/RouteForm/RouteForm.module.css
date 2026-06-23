@@ -210,13 +210,6 @@
   transform: translateX(18px);
 }
 
-.backupField {
-  padding: 12px 14px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  border-top: 1px solid var(--border);
-}
 
 
 /* Fuel card */
