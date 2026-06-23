@@ -28,7 +28,8 @@ export default function DailyView() {
 
   // Sincroniza quando navegar de outra tela com ?date=
   useEffect(() => {
-    const dateFromUrl = searchParams.get('date');
+    const raw = searchParams.get('date');
+    const dateFromUrl = raw ? raw.slice(0, 10) : null;
     if (dateFromUrl && dateFromUrl !== selectedDate) {
       setSelectedDate(dateFromUrl);
       setMonth(getMonthFromDate(dateFromUrl));

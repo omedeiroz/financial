@@ -111,7 +111,7 @@ export default function MonthHistory() {
               <div
                 key={day.day}
                 className={styles.dayRow}
-                onClick={() => navigate(`/?date=${day.day}`)}
+                onClick={() => navigate(`/?date=${String(day.day).slice(0, 10)}`)}
               >
                 <div className={`${styles.dateBadge} ${isToday ? styles.dateBadgeToday : ''}`}>
                   <span className={styles.badgeLabel}>{weekday.toUpperCase()}</span>
