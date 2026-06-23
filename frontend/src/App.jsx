@@ -7,6 +7,7 @@ import MonthHistory from './pages/MonthHistory/MonthHistory';
 import RoutesList from './pages/RoutesList/RoutesList';
 import RouteForm from './pages/RouteForm/RouteForm';
 import RouteDetail from './pages/RouteDetail/RouteDetail';
+import Profile from './pages/Profile/Profile';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,6 +26,7 @@ function AppRoutes() {
         <Route path="/routes/:id" element={<ErrorBoundary><RouteDetail /></ErrorBoundary>} />
         <Route path="/routes/:id/edit" element={<ErrorBoundary><RouteForm /></ErrorBoundary>} />
         <Route path="/history" element={<ErrorBoundary><MonthHistory /></ErrorBoundary>} />
+        <Route path="/profile" element={<ErrorBoundary><Profile /></ErrorBoundary>} />
       </Routes>
     </BrowserRouter>
   );

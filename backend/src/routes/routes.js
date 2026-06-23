@@ -167,6 +167,52 @@ router.put('/:id', async (req, res, next) => {
 });
 
 // ─────────────────────────────────────────────────────────────
+// GET /api/routes/yearly-summary?year=2026
+//   → totais por mês do ano (para gráfico anual)
+// ─────────────────────────────────────────────────────────────
+router.get('/yearly-summary', async (req, res, next) => {
+  try {
+    const { year } = req.query;
+    if (!year) return res.status(400).json({ error: 'Parâmetro year obrigatório (YYYY)' });
+
+    const { rows } = await db.query(
+      `SELECT
+         TO_CHAR(day, 'YYYY-MM')                    AS month,
+         COUNT(*)::int                              AS total_routes,
+         COALESCE(SUM(km_route),    0)::float       AS total_km,
+         COALESCE(SUM(final_value), 0)::float       AS total_liquid,
+         COALESCE(SUM(gnv_cost + gasoline_cost), 0)::float AS total_fuel
+       FROM routes
+       WHERE EXTRACT(YEAR FROM day) = $1
+       GROUP BY TO_CHAR(day, 'YYYY-MM')
+       ORDER BY month`,
+      [year]
+    );
+    res.json(rows);
+  } catch (err) { next(err); }
+});
+
+// ─────────────────────────────────────────────────────────────
+// GET /api/routes/alltime-summary
+//   → totais de todos os tempos
+// ─────────────────────────────────────────────────────────────
+router.get('/alltime-summary', async (req, res, next) => {
+  try {
+    const { rows } = await db.query(
+      `SELECT
+         COUNT(*)::int                              AS total_routes,
+         COALESCE(SUM(km_route),    0)::float       AS total_km,
+         COALESCE(SUM(final_value), 0)::float       AS total_liquid,
+         COALESCE(SUM(gnv_cost + gasoline_cost), 0)::float AS total_fuel,
+         MIN(day)                                   AS first_day,
+         MAX(day)                                   AS last_day
+       FROM routes`
+    );
+    res.json(rows[0]);
+  } catch (err) { next(err); }
+});
+
+// ─────────────────────────────────────────────────────────────
 // DELETE /api/routes/:id
 // ─────────────────────────────────────────────────────────────
 router.delete('/:id', async (req, res, next) => {

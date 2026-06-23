@@ -9,6 +9,7 @@ export default function BottomNav({ selectedDate }) {
   const isHome = pathname === '/';
   const isRoutes = pathname === '/routes';
   const isHistory = pathname === '/history';
+  const isProfile = pathname === '/profile';
 
   function handleNew() {
     const date = selectedDate || new Date().toISOString().slice(0, 10);
@@ -47,7 +48,10 @@ export default function BottomNav({ selectedDate }) {
         <span className={styles.label}>Mês</span>
       </button>
 
-      <button className={styles.tab}>
+      <button
+        className={`${styles.tab} ${isProfile ? styles.active : ''}`}
+        onClick={() => navigate('/profile')}
+      >
         <User size={20} strokeWidth={1.8} />
         <span className={styles.label}>Perfil</span>
       </button>

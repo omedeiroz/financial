@@ -95,6 +95,27 @@
   background: var(--surface-2);
 }
 
+.inputBackup {
+  width: 100%;
+  background: #2E2E2E;
+  border: 1.5px solid #4A4641;
+  border-radius: var(--radius-md);
+  padding: 14px 14px 14px 36px;
+  font-size: 16px;
+  color: var(--ink-1);
+  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.inputBackup::placeholder {
+  color: var(--ink-3);
+}
+
+.inputBackup:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(226, 97, 68, 0.15);
+  outline: none;
+}
+
 .inputKmRoute {
   composes: inputMono;
   background: var(--surface-2);
@@ -197,15 +218,6 @@
   border-top: 1px solid var(--border);
 }
 
-.backupField .inputPrefix input {
-  background: var(--bg);
-  border-color: var(--border);
-}
-
-.backupField .inputPrefix input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(226, 97, 68, 0.15);
-}
 
 /* Fuel card */
 .fuelCard {
