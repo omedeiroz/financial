@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import MonthNav from '../../components/MonthNav/MonthNav';
 import DateStrip from '../../components/DateStrip/DateStrip';
@@ -25,6 +25,15 @@ export default function DailyView() {
 
   const [selectedDate, setSelectedDate] = useState(initialDate);
   const [month, setMonth] = useState(getMonthFromDate(initialDate));
+
+  // Sincroniza quando navegar de outra tela com ?date=
+  useEffect(() => {
+    const dateFromUrl = searchParams.get('date');
+    if (dateFromUrl && dateFromUrl !== selectedDate) {
+      setSelectedDate(dateFromUrl);
+      setMonth(getMonthFromDate(dateFromUrl));
+    }
+  }, [searchParams]);
 
   const { data: routes = [], isLoading, isError, refetch } = useRoutesByDate(selectedDate);
   const { data: summary } = useMonthlySummary(month);
@@ -58,7 +67,9 @@ export default function DailyView() {
       <DateStrip selectedDate={selectedDate} month={month} onSelect={handleSelectDate} />
 
       <div className={styles.hero}>
-        <span className={styles.heroEyebrow}>VALOR LÍQUIDO HOJE</span>
+        <span className={styles.heroEyebrow}>
+          {selectedDate === toDateStr(new Date()) ? 'VALOR LÍQUIDO HOJE' : `VALOR LÍQUIDO · ${selectedDate.split('-').reverse().slice(0,2).join('/')}`}
+        </span>
         <span className={styles.heroValue}>{formatCurrency(dailyTotal)}</span>
       </div>
 
