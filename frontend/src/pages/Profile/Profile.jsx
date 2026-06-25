@@ -20,10 +20,11 @@ function fmt(val) {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(val) || 0);
 }
 
-function exportPDF(routes, month) {
+function exportPDF(routes, month, quinzena) {
   const [year, m] = month.split('-');
   const monthName = MONTH_FULL[parseInt(m, 10) - 1];
-  const title = `Rotas — ${monthName} ${year}`;
+  const qLabel = quinzena === 1 ? ' · 1ª Quinzena' : quinzena === 2 ? ' · 2ª Quinzena' : '';
+  const title = `Rotas — ${monthName} ${year}${qLabel}`;
 
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
@@ -106,12 +107,14 @@ function exportPDF(routes, month) {
     doc.text(`${i}/${pageCount}`, 196, 290, { align: 'right' });
   }
 
-  doc.save(`rotas-${month}.pdf`);
+  const qSuffix = quinzena === 1 ? '-q1' : quinzena === 2 ? '-q2' : '';
+  doc.save(`rotas-${month}${qSuffix}.pdf`);
 }
 
 export default function Profile() {
   const year = currentYear();
   const [exportMonth, setExportMonth] = useState(toMonthStr(new Date()));
+  const [exportQuinzena, setExportQuinzena] = useState(0); // 0=mês completo, 1=1ª, 2=2ª
   const [exporting, setExporting] = useState(false);
   const { theme, toggle } = useTheme();
 
@@ -137,9 +140,14 @@ export default function Profile() {
   async function handleExport() {
     setExporting(true);
     try {
-      const routes = await api.exportMonth(exportMonth);
-      if (!routes.length) { alert('Nenhuma rota neste mês.'); return; }
-      exportPDF(routes, exportMonth);
+      let routes = await api.exportMonth(exportMonth);
+      if (exportQuinzena === 1) {
+        routes = routes.filter(r => Number(String(r.day).slice(8, 10)) <= 15);
+      } else if (exportQuinzena === 2) {
+        routes = routes.filter(r => Number(String(r.day).slice(8, 10)) > 15);
+      }
+      if (!routes.length) { alert('Nenhuma rota neste período.'); return; }
+      exportPDF(routes, exportMonth, exportQuinzena);
     } finally {
       setExporting(false);
     }
@@ -218,6 +226,20 @@ export default function Profile() {
               value={exportMonth}
               onChange={e => setExportMonth(e.target.value)}
             />
+          </div>
+          <div className={styles.exportRow}>
+            <span className={styles.exportLabel}>Período</span>
+            <div className={styles.quinzenaToggle}>
+              {[{ v: 0, l: 'Completo' }, { v: 1, l: '1ª Quinz.' }, { v: 2, l: '2ª Quinz.' }].map(({ v, l }) => (
+                <button
+                  key={v}
+                  className={`${styles.quinzenaBtn} ${exportQuinzena === v ? styles.quinzenaBtnActive : ''}`}
+                  onClick={() => setExportQuinzena(v)}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
           </div>
           <button
             className={styles.exportBtn}

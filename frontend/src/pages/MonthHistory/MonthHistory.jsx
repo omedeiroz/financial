@@ -15,16 +15,33 @@ function addMonths(monthStr, delta) {
   return toMonthStr(d);
 }
 
+function quinzenaSummary(days, q) {
+  const filtered = days.filter(d => {
+    const n = Number(String(d.day).slice(8, 10));
+    return q === 1 ? n <= 15 : n > 15;
+  });
+  return {
+    total_liquid: filtered.reduce((s, d) => s + Number(d.total_liquid), 0),
+    total_routes: filtered.reduce((s, d) => s + Number(d.total_routes), 0),
+    total_km: filtered.reduce((s, d) => s + Number(d.total_km), 0),
+    total_fuel: filtered.reduce((s, d) => s + Number(d.total_fuel || 0), 0),
+    count: filtered.length,
+  };
+}
+
 export default function MonthHistory() {
   const navigate = useNavigate();
   const [month, setMonth] = useState(toMonthStr(new Date()));
   const today = toDateStr(new Date());
 
-  const { data: summary, isLoading: loadingSummary, isError: errorSummary, refetch: refetchSummary } = useMonthlySummary(month);
+  const { isLoading: loadingSummary, isError: errorSummary, refetch: refetchSummary } = useMonthlySummary(month);
   const { data: days = [], isLoading: loadingDays, isError: errorDays, refetch: refetchDays } = useDailySummary(month);
 
   const isLoading = loadingSummary || loadingDays;
   const isError = errorSummary || errorDays;
+
+  const q1 = quinzenaSummary(days, 1);
+  const q2 = quinzenaSummary(days, 2);
 
   function formatDayStr(dayStr) {
     try {
@@ -60,21 +77,41 @@ export default function MonthHistory() {
         <div style={{ width: 32 }} />
       </div>
 
-      <div className={styles.summaryCard}>
-        <span className={styles.summaryEyebrow}>VALOR LÍQUIDO · {formatMonthCapitalized(month).toUpperCase()}</span>
-        <span className={styles.summaryValue}>{formatCurrency(summary?.total_liquid || 0)}</span>
-        <div className={styles.summaryStats}>
-          <div className={styles.summaryStat}>
-            <span className={styles.summaryStatNum}>{summary?.total_routes || 0}</span>
-            <span className={styles.summaryStatLabel}>ROTAS</span>
+      <div className={styles.quinzenaCards}>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryEyebrow}>1ª QUINZENA · 1–15</span>
+          <span className={styles.summaryValue}>{formatCurrency(q1.total_liquid)}</span>
+          <div className={styles.summaryStats}>
+            <div className={styles.summaryStat}>
+              <span className={styles.summaryStatNum}>{q1.total_routes}</span>
+              <span className={styles.summaryStatLabel}>ROTAS</span>
+            </div>
+            <div className={`${styles.summaryStat} ${styles.summaryStatBorder}`}>
+              <span className={styles.summaryStatNum}>{formatNumber(q1.total_km, 0)}</span>
+              <span className={styles.summaryStatLabel}>KM</span>
+            </div>
+            <div className={styles.summaryStat}>
+              <span className={styles.summaryStatNum}>{formatCurrency(q1.total_fuel)}</span>
+              <span className={styles.summaryStatLabel}>COMBUST.</span>
+            </div>
           </div>
-          <div className={`${styles.summaryStat} ${styles.summaryStatBorder}`}>
-            <span className={styles.summaryStatNum}>{formatNumber(summary?.total_km || 0, 0)}</span>
-            <span className={styles.summaryStatLabel}>KM TOTAL</span>
-          </div>
-          <div className={styles.summaryStat}>
-            <span className={styles.summaryStatNum}>{formatCurrency(summary?.total_fuel || 0)}</span>
-            <span className={styles.summaryStatLabel}>COMBUST.</span>
+        </div>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryEyebrow}>2ª QUINZENA · 16–30</span>
+          <span className={styles.summaryValue}>{formatCurrency(q2.total_liquid)}</span>
+          <div className={styles.summaryStats}>
+            <div className={styles.summaryStat}>
+              <span className={styles.summaryStatNum}>{q2.total_routes}</span>
+              <span className={styles.summaryStatLabel}>ROTAS</span>
+            </div>
+            <div className={`${styles.summaryStat} ${styles.summaryStatBorder}`}>
+              <span className={styles.summaryStatNum}>{formatNumber(q2.total_km, 0)}</span>
+              <span className={styles.summaryStatLabel}>KM</span>
+            </div>
+            <div className={styles.summaryStat}>
+              <span className={styles.summaryStatNum}>{formatCurrency(q2.total_fuel)}</span>
+              <span className={styles.summaryStatLabel}>COMBUST.</span>
+            </div>
           </div>
         </div>
       </div>

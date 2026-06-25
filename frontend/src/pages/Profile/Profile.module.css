@@ -193,7 +193,7 @@
   color: var(--ink-1);
   font-family: var(--font-mono);
   font-size: 13px;
-  color-scheme: dark;
+  color-scheme: light dark;
 }
 
 .exportBtn {
@@ -211,4 +211,27 @@
 
 .exportBtn:disabled {
   opacity: 0.5;
+}
+
+.quinzenaToggle {
+  display: flex;
+  gap: 4px;
+}
+
+.quinzenaBtn {
+  padding: 5px 10px;
+  border-radius: 7px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--ink-3);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+
+.quinzenaBtnActive {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
 }
