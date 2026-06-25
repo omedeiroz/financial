@@ -49,6 +49,13 @@
   padding: 16px 20px 0;
 }
 
+.sectionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
 .sectionLabel {
   display: block;
   font-family: var(--font-mono);
@@ -57,6 +64,34 @@
   color: var(--ink-4);
   letter-spacing: 0.08em;
   margin-bottom: 10px;
+}
+
+.sectionRow .sectionLabel {
+  margin-bottom: 0;
+}
+
+/* Chart quinzena tabs */
+.qTabs {
+  display: flex;
+  gap: 4px;
+}
+
+.qTab {
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--ink-3);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+
+.qTabActive {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
 }
 
 .since {
@@ -213,25 +248,50 @@
   opacity: 0.5;
 }
 
-.quinzenaToggle {
+.checkGroup {
   display: flex;
-  gap: 4px;
+  gap: 12px;
 }
 
-.quinzenaBtn {
-  padding: 5px 10px;
-  border-radius: 7px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  color: var(--ink-3);
-  font-size: 12px;
-  font-family: var(--font-mono);
+.checkLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ink-2);
   cursor: pointer;
-  transition: all var(--dur-fast) var(--ease-out);
+  user-select: none;
 }
 
-.quinzenaBtnActive {
+.checkbox {
+  display: none;
+}
+
+.checkBox {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  flex-shrink: 0;
+  transition: all var(--dur-fast) var(--ease-out);
+  position: relative;
+}
+
+.checkBoxOn {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+}
+
+.checkBoxOn::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 5px;
+  width: 5px;
+  height: 8px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
 }

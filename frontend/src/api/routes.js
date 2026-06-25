@@ -60,8 +60,8 @@ export const api = {
   delete: (id) =>
     apiFetch(`${BASE}/api/routes/${id}`, { method: 'DELETE' }),
 
-  getYearlySummary: (year) =>
-    apiFetch(`${BASE}/api/routes/yearly-summary?year=${year}`),
+  getYearlySummary: (year, quinzena) =>
+    apiFetch(`${BASE}/api/routes/yearly-summary?year=${year}${quinzena ? `&quinzena=${quinzena}` : ''}`),
 
   getAlltimeSummary: () =>
     apiFetch(`${BASE}/api/routes/alltime-summary`),

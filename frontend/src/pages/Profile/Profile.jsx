@@ -12,23 +12,20 @@ import styles from './Profile.module.css';
 const MONTH_NAMES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const MONTH_FULL  = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
-function currentYear() {
-  return new Date().getFullYear();
-}
+function currentYear() { return new Date().getFullYear(); }
 
 function fmt(val) {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(val) || 0);
 }
 
-function exportPDF(routes, month, quinzena) {
+function dayNum(dayStr) { return Number(String(dayStr).slice(8, 10)); }
+
+function buildPDF(routes, month, qLabel, qSuffix) {
   const [year, m] = month.split('-');
   const monthName = MONTH_FULL[parseInt(m, 10) - 1];
-  const qLabel = quinzena === 1 ? ' · 1ª Quinzena' : quinzena === 2 ? ' · 2ª Quinzena' : '';
   const title = `Rotas — ${monthName} ${year}${qLabel}`;
-
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-  // Header
   doc.setFillColor(25, 25, 25);
   doc.rect(0, 0, 210, 28, 'F');
   doc.setTextColor(232, 230, 225);
@@ -36,7 +33,6 @@ function exportPDF(routes, month, quinzena) {
   doc.setFont('helvetica', 'bold');
   doc.text(title, 14, 12);
 
-  // Totais do mês
   const totalLiquid = routes.reduce((s, r) => s + Number(r.final_value), 0);
   const totalKm     = routes.reduce((s, r) => s + Number(r.km_route), 0);
   const totalFuel   = routes.reduce((s, r) => s + Number(r.gnv_cost) + Number(r.gasoline_cost), 0);
@@ -45,13 +41,11 @@ function exportPDF(routes, month, quinzena) {
   doc.setTextColor(155, 150, 141);
   doc.setFont('helvetica', 'normal');
   doc.text(`${routes.length} rotas  ·  ${formatNumber(totalKm, 0)} km  ·  combustível ${fmt(totalFuel)}`, 14, 20);
-
   doc.setTextColor(91, 163, 114);
   doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
   doc.text(`Líquido: ${fmt(totalLiquid)}`, 14, 26);
 
-  // Tabela
   autoTable(doc, {
     startY: 32,
     head: [['Data', 'Nome', 'Km', 'Valor Bruto', 'Backup', 'GNV', 'Gasolina', 'Líquido']],
@@ -66,23 +60,9 @@ function exportPDF(routes, month, quinzena) {
       fmt(r.final_value),
     ]),
     foot: [['', `Total: ${routes.length} rotas`, `${formatNumber(totalKm, 0)} km`, '', '', '', '', fmt(totalLiquid)]],
-    styles: {
-      fontSize: 8,
-      cellPadding: 3,
-      textColor: [50, 50, 50],
-    },
-    headStyles: {
-      fillColor: [226, 97, 68],
-      textColor: [255, 255, 255],
-      fontStyle: 'bold',
-      fontSize: 8,
-    },
-    footStyles: {
-      fillColor: [240, 240, 240],
-      textColor: [30, 30, 30],
-      fontStyle: 'bold',
-      fontSize: 8,
-    },
+    styles: { fontSize: 8, cellPadding: 3, textColor: [50, 50, 50] },
+    headStyles: { fillColor: [226, 97, 68], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
+    footStyles: { fillColor: [240, 240, 240], textColor: [30, 30, 30], fontStyle: 'bold', fontSize: 8 },
     alternateRowStyles: { fillColor: [248, 248, 248] },
     columnStyles: {
       0: { cellWidth: 22 },
@@ -96,7 +76,6 @@ function exportPDF(routes, month, quinzena) {
     },
   });
 
-  // Rodapé
   const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
@@ -107,16 +86,21 @@ function exportPDF(routes, month, quinzena) {
     doc.text(`${i}/${pageCount}`, 196, 290, { align: 'right' });
   }
 
-  const qSuffix = quinzena === 1 ? '-q1' : quinzena === 2 ? '-q2' : '';
   doc.save(`rotas-${month}${qSuffix}.pdf`);
 }
 
 export default function Profile() {
   const year = currentYear();
-  const [exportMonth, setExportMonth] = useState(toMonthStr(new Date()));
-  const [exportQuinzena, setExportQuinzena] = useState(0); // 0=mês completo, 1=1ª, 2=2ª
-  const [exporting, setExporting] = useState(false);
   const { theme, toggle } = useTheme();
+
+  // Chart quinzena filter
+  const [chartQ, setChartQ] = useState(0); // 0=ambas, 1=1ª, 2=2ª
+
+  // Export state
+  const [exportMonth, setExportMonth] = useState(toMonthStr(new Date()));
+  const [exportQ1, setExportQ1] = useState(true);
+  const [exportQ2, setExportQ2] = useState(true);
+  const [exporting, setExporting] = useState(false);
 
   const { data: alltime } = useQuery({
     queryKey: ['alltime-summary'],
@@ -124,8 +108,8 @@ export default function Profile() {
   });
 
   const { data: yearly = [] } = useQuery({
-    queryKey: ['yearly-summary', year],
-    queryFn: () => api.getYearlySummary(year),
+    queryKey: ['yearly-summary', year, chartQ],
+    queryFn: () => api.getYearlySummary(year, chartQ || undefined),
   });
 
   const monthlyData = Array.from({ length: 12 }, (_, i) => {
@@ -138,22 +122,35 @@ export default function Profile() {
   const maxLiquid = Math.max(...monthlyData.map(m => m.total_liquid), 1);
 
   async function handleExport() {
+    if (!exportQ1 && !exportQ2) return;
     setExporting(true);
     try {
-      let routes = await api.exportMonth(exportMonth);
-      if (exportQuinzena === 1) {
-        routes = routes.filter(r => Number(String(r.day).slice(8, 10)) <= 15);
-      } else if (exportQuinzena === 2) {
-        routes = routes.filter(r => Number(String(r.day).slice(8, 10)) > 15);
+      const all = await api.exportMonth(exportMonth);
+
+      const bothSelected = exportQ1 && exportQ2;
+
+      if (bothSelected) {
+        if (!all.length) { alert('Nenhuma rota neste mês.'); return; }
+        buildPDF(all, exportMonth, '', '');
+      } else {
+        if (exportQ1) {
+          const q1 = all.filter(r => dayNum(r.day) <= 15);
+          if (!q1.length) { alert('Nenhuma rota na 1ª quinzena.'); return; }
+          buildPDF(q1, exportMonth, ' · 1ª Quinzena', '-q1');
+        }
+        if (exportQ2) {
+          const q2 = all.filter(r => dayNum(r.day) > 15);
+          if (!q2.length) { alert('Nenhuma rota na 2ª quinzena.'); return; }
+          buildPDF(q2, exportMonth, ' · 2ª Quinzena', '-q2');
+        }
       }
-      if (!routes.length) { alert('Nenhuma rota neste período.'); return; }
-      exportPDF(routes, exportMonth, exportQuinzena);
     } finally {
       setExporting(false);
     }
   }
 
   const firstDay = alltime?.first_day ? alltime.first_day.slice(0, 10) : null;
+  const canExport = exportQ1 || exportQ2;
 
   return (
     <div className={styles.page}>
@@ -193,7 +190,20 @@ export default function Profile() {
       </div>
 
       <div className={styles.section}>
-        <span className={styles.sectionLabel}>RESUMO {year}</span>
+        <div className={styles.sectionRow}>
+          <span className={styles.sectionLabel}>RESUMO {year}</span>
+          <div className={styles.qTabs}>
+            {[{ v: 0, l: 'Ambas' }, { v: 1, l: '1ª' }, { v: 2, l: '2ª' }].map(({ v, l }) => (
+              <button
+                key={v}
+                className={`${styles.qTab} ${chartQ === v ? styles.qTabActive : ''}`}
+                onClick={() => setChartQ(v)}
+              >
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className={styles.yearChart}>
           {monthlyData.map(({ month, label, total_liquid, total_routes }) => (
             <div key={month} className={styles.bar}>
@@ -228,26 +238,37 @@ export default function Profile() {
             />
           </div>
           <div className={styles.exportRow}>
-            <span className={styles.exportLabel}>Período</span>
-            <div className={styles.quinzenaToggle}>
-              {[{ v: 0, l: 'Completo' }, { v: 1, l: '1ª Quinz.' }, { v: 2, l: '2ª Quinz.' }].map(({ v, l }) => (
-                <button
-                  key={v}
-                  className={`${styles.quinzenaBtn} ${exportQuinzena === v ? styles.quinzenaBtnActive : ''}`}
-                  onClick={() => setExportQuinzena(v)}
-                >
-                  {l}
-                </button>
-              ))}
+            <span className={styles.exportLabel}>Quinzenas</span>
+            <div className={styles.checkGroup}>
+              <label className={styles.checkLabel}>
+                <input
+                  type="checkbox"
+                  className={styles.checkbox}
+                  checked={exportQ1}
+                  onChange={e => setExportQ1(e.target.checked)}
+                />
+                <span className={`${styles.checkBox} ${exportQ1 ? styles.checkBoxOn : ''}`} />
+                1ª (1–15)
+              </label>
+              <label className={styles.checkLabel}>
+                <input
+                  type="checkbox"
+                  className={styles.checkbox}
+                  checked={exportQ2}
+                  onChange={e => setExportQ2(e.target.checked)}
+                />
+                <span className={`${styles.checkBox} ${exportQ2 ? styles.checkBoxOn : ''}`} />
+                2ª (16–30)
+              </label>
             </div>
           </div>
           <button
             className={styles.exportBtn}
             onClick={handleExport}
-            disabled={exporting}
+            disabled={exporting || !canExport}
           >
             <Download size={16} strokeWidth={1.8} />
-            {exporting ? 'Gerando PDF...' : 'Exportar PDF'}
+            {exporting ? 'Gerando PDF...' : exportQ1 && exportQ2 ? 'Exportar mês completo' : 'Exportar quinzena'}
           </button>
         </div>
       </div>

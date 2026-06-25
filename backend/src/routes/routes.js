@@ -91,8 +91,13 @@ router.get('/daily-summary', async (req, res, next) => {
 // ─────────────────────────────────────────────────────────────
 router.get('/yearly-summary', async (req, res, next) => {
   try {
-    const { year } = req.query;
+    const { year, quinzena } = req.query;
     if (!year) return res.status(400).json({ error: 'Parâmetro year obrigatório (YYYY)' });
+
+    const q = parseInt(quinzena);
+    const qFilter = q === 1 ? 'AND EXTRACT(DAY FROM day) <= 15'
+                  : q === 2 ? 'AND EXTRACT(DAY FROM day) > 15'
+                  : '';
 
     const { rows } = await db.query(
       `SELECT
@@ -102,7 +107,7 @@ router.get('/yearly-summary', async (req, res, next) => {
          COALESCE(SUM(final_value), 0)::float       AS total_liquid,
          COALESCE(SUM(gnv_cost + gasoline_cost), 0)::float AS total_fuel
        FROM routes
-       WHERE EXTRACT(YEAR FROM day) = $1
+       WHERE EXTRACT(YEAR FROM day) = $1 ${qFilter}
        GROUP BY TO_CHAR(day, 'YYYY-MM')
        ORDER BY month`,
       [year]
