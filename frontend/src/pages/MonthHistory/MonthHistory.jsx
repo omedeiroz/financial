@@ -105,32 +105,64 @@ export default function MonthHistory() {
         ) : days.length === 0 ? (
           <div className={styles.empty}>Nenhuma rota neste mês</div>
         ) : (
-          days.map((day) => {
-            const { weekday, day: dayNum, month: monthAbbr, isToday } = formatDayStr(day.day);
-            return (
-              <div
-                key={day.day}
-                className={styles.dayRow}
-                onClick={() => navigate(`/?date=${String(day.day).slice(0, 10)}`)}
-              >
-                <div className={`${styles.dateBadge} ${isToday ? styles.dateBadgeToday : ''}`}>
-                  <span className={styles.badgeLabel}>{weekday.toUpperCase()}</span>
-                  <span className={styles.badgeNum}>{dayNum}</span>
-                </div>
-                <div className={styles.dayContent}>
-                  <div className={styles.dayNameRow}>
-                    <span className={styles.dayName}>{weekday}-feira, {dayNum} {monthAbbr}</span>
-                    {isToday && <span className={styles.todayBadge}>hoje</span>}
+          (() => {
+            const q1 = days.filter(d => Number(String(d.day).slice(8, 10)) <= 15);
+            const q2 = days.filter(d => Number(String(d.day).slice(8, 10)) > 15);
+            const q1Total = q1.reduce((s, d) => s + Number(d.total_liquid), 0);
+            const q2Total = q2.reduce((s, d) => s + Number(d.total_liquid), 0);
+
+            function renderDay(day) {
+              const { weekday, day: dayNum, month: monthAbbr, isToday } = formatDayStr(day.day);
+              return (
+                <div
+                  key={day.day}
+                  className={styles.dayRow}
+                  onClick={() => navigate(`/?date=${String(day.day).slice(0, 10)}`)}
+                >
+                  <div className={`${styles.dateBadge} ${isToday ? styles.dateBadgeToday : ''}`}>
+                    <span className={styles.badgeLabel}>{weekday.toUpperCase()}</span>
+                    <span className={styles.badgeNum}>{dayNum}</span>
                   </div>
-                  <span className={styles.dayDetail}>
-                    {day.total_routes} {day.total_routes === 1 ? 'rota' : 'rotas'} · {formatNumber(day.total_km, 0)} km
-                  </span>
+                  <div className={styles.dayContent}>
+                    <div className={styles.dayNameRow}>
+                      <span className={styles.dayName}>{weekday}-feira, {dayNum} {monthAbbr}</span>
+                      {isToday && <span className={styles.todayBadge}>hoje</span>}
+                    </div>
+                    <span className={styles.dayDetail}>
+                      {day.total_routes} {day.total_routes === 1 ? 'rota' : 'rotas'} · {formatNumber(day.total_km, 0)} km
+                    </span>
+                  </div>
+                  <span className={styles.dayValue}>{formatCurrency(day.total_liquid)}</span>
+                  <ChevronRight size={12} strokeWidth={1.8} color="var(--ink-4)" />
                 </div>
-                <span className={styles.dayValue}>{formatCurrency(day.total_liquid)}</span>
-                <ChevronRight size={12} strokeWidth={1.8} color="var(--ink-4)" />
-              </div>
+              );
+            }
+
+            return (
+              <>
+                {q1.length > 0 && (
+                  <>
+                    <div className={styles.quinzenaHeader}>
+                      <span className={styles.quinzenaLabel}>1ª Quinzena · 1 – 15</span>
+                      <span className={styles.quinzenaTotal}>{formatCurrency(q1Total)}</span>
+                    </div>
+                    <div className={styles.quinzenaDivider} />
+                    {q1.map(renderDay)}
+                  </>
+                )}
+                {q2.length > 0 && (
+                  <>
+                    <div className={styles.quinzenaHeader}>
+                      <span className={styles.quinzenaLabel}>2ª Quinzena · 16 – 30</span>
+                      <span className={styles.quinzenaTotal}>{formatCurrency(q2Total)}</span>
+                    </div>
+                    <div className={styles.quinzenaDivider} />
+                    {q2.map(renderDay)}
+                  </>
+                )}
+              </>
             );
-          })
+          })()
         )}
       </div>
 

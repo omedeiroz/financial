@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import { useKeepAlive } from './hooks/useKeepAlive';
+import { useTheme } from './hooks/useTheme';
 import DailyView from './pages/DailyView/DailyView';
 import MonthHistory from './pages/MonthHistory/MonthHistory';
 import RoutesList from './pages/RoutesList/RoutesList';
@@ -17,6 +18,7 @@ const queryClient = new QueryClient({
 
 function AppRoutes() {
   useKeepAlive();
+  useTheme();
   return (
     <BrowserRouter>
       <Routes>

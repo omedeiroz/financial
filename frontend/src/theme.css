@@ -42,6 +42,28 @@
   --dur-base:  180ms;
 }
 
+/* Light theme overrides */
+[data-theme="light"] {
+  --bg:           #F7F6F3;
+  --surface:      #FFFFFF;
+  --surface-2:    #EEECEA;
+  --border:       #DDD9D4;
+  --border-sub:   #E8E5E1;
+
+  --ink-1:        #1A1815;
+  --ink-2:        #5A5650;
+  --ink-3:        #8A847A;
+  --ink-4:        #B3AFA8;
+
+  --accent:       #E26144;
+  --accent-soft:  #FDEAE3;
+  --accent-ink:   #B84020;
+
+  --ok:           #3D8B57;
+  --danger:       #C04535;
+  --danger-soft:  #FDDBD5;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;

@@ -291,3 +291,33 @@
   color: var(--ok);
   flex-shrink: 0;
 }
+
+/* Quinzena sections */
+.quinzenaHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 4px 6px;
+  margin-top: 4px;
+}
+
+.quinzenaLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  letter-spacing: 0.07em;
+}
+
+.quinzenaTotal {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ok);
+}
+
+.quinzenaDivider {
+  height: 1px;
+  background: var(--border);
+  margin: 0 4px 2px;
+}

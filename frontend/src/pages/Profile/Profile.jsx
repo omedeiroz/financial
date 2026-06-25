@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Download } from 'lucide-react';
+import { Download, Sun, Moon } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { api } from '../../api/routes';
 import BottomNav from '../../components/BottomNav/BottomNav';
+import { useTheme } from '../../hooks/useTheme';
 import { formatCurrency, formatNumber, toMonthStr } from '../../utils/format';
 import styles from './Profile.module.css';
 
@@ -112,6 +113,7 @@ export default function Profile() {
   const year = currentYear();
   const [exportMonth, setExportMonth] = useState(toMonthStr(new Date()));
   const [exporting, setExporting] = useState(false);
+  const { theme, toggle } = useTheme();
 
   const { data: alltime } = useQuery({
     queryKey: ['alltime-summary'],
@@ -148,8 +150,13 @@ export default function Profile() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <span className={styles.eyebrow}>PERFIL</span>
-        <span className={styles.title}>Visão geral</span>
+        <div>
+          <span className={styles.eyebrow}>PERFIL</span>
+          <span className={styles.title}>Visão geral</span>
+        </div>
+        <button className={styles.themeBtn} onClick={toggle} title={theme === 'dark' ? 'Modo claro' : 'Modo escuro'}>
+          {theme === 'dark' ? <Sun size={18} strokeWidth={1.8} /> : <Moon size={18} strokeWidth={1.8} />}
+        </button>
       </div>
 
       <div className={styles.section}>
