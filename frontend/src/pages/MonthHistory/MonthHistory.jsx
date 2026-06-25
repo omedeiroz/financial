@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useMonthlySummary, useDailySummary } from '../../hooks/useSummary';
+import { useDailySummary } from '../../hooks/useSummary';
 import { formatCurrency, formatNumber, formatMonthCapitalized, toMonthStr, toDateStr } from '../../utils/format';
 import BottomNav from '../../components/BottomNav/BottomNav';
 import styles from './MonthHistory.module.css';
@@ -15,37 +15,38 @@ function addMonths(monthStr, delta) {
   return toMonthStr(d);
 }
 
+function dayNum(dayStr) {
+  return Number(String(dayStr).slice(8, 10));
+}
+
 function quinzenaSummary(days, q) {
-  const filtered = days.filter(d => {
-    const n = Number(String(d.day).slice(8, 10));
-    return q === 1 ? n <= 15 : n > 15;
-  });
+  const filtered = days.filter(d => q === 1 ? dayNum(d.day) <= 15 : dayNum(d.day) > 15);
   return {
     total_liquid: filtered.reduce((s, d) => s + Number(d.total_liquid), 0),
     total_routes: filtered.reduce((s, d) => s + Number(d.total_routes), 0),
-    total_km: filtered.reduce((s, d) => s + Number(d.total_km), 0),
-    total_fuel: filtered.reduce((s, d) => s + Number(d.total_fuel || 0), 0),
-    count: filtered.length,
+    total_km:     filtered.reduce((s, d) => s + Number(d.total_km), 0),
+    total_fuel:   filtered.reduce((s, d) => s + Number(d.total_fuel || 0), 0),
   };
 }
 
 export default function MonthHistory() {
   const navigate = useNavigate();
   const [month, setMonth] = useState(toMonthStr(new Date()));
+  const [activeQ, setActiveQ] = useState(0); // 0=ambas, 1=1ª, 2=2ª
   const today = toDateStr(new Date());
 
-  const { isLoading: loadingSummary, isError: errorSummary, refetch: refetchSummary } = useMonthlySummary(month);
-  const { data: days = [], isLoading: loadingDays, isError: errorDays, refetch: refetchDays } = useDailySummary(month);
-
-  const isLoading = loadingSummary || loadingDays;
-  const isError = errorSummary || errorDays;
+  const { data: days = [], isLoading, isError, refetch } = useDailySummary(month);
 
   const q1 = quinzenaSummary(days, 1);
   const q2 = quinzenaSummary(days, 2);
 
+  const visibleDays = activeQ === 0 ? days
+    : activeQ === 1 ? days.filter(d => dayNum(d.day) <= 15)
+    : days.filter(d => dayNum(d.day) > 15);
+
   function formatDayStr(dayStr) {
     try {
-      const clean = String(dayStr).slice(0, 10); // garante 'YYYY-MM-DD'
+      const clean = String(dayStr).slice(0, 10);
       const [y, m, d] = clean.split('-').map(Number);
       const date = new Date(y, m - 1, d);
       const weekday = PT_WEEKDAYS[date.getDay()] ?? 'Seg';
@@ -54,6 +55,15 @@ export default function MonthHistory() {
     } catch {
       return { weekday: '—', day: 0, month: '', isToday: false };
     }
+  }
+
+  function handleMonthChange(delta) {
+    setMonth(m => addMonths(m, delta));
+    setActiveQ(0);
+  }
+
+  function toggleQ(q) {
+    setActiveQ(prev => prev === q ? 0 : q);
   }
 
   return (
@@ -65,11 +75,11 @@ export default function MonthHistory() {
         <div className={styles.headerCenter}>
           <span className={styles.eyebrow}>HISTÓRICO</span>
           <div className={styles.monthNav}>
-            <button className={styles.chevron} onClick={() => setMonth(m => addMonths(m, -1))}>
+            <button className={styles.chevron} onClick={() => handleMonthChange(-1)}>
               <ChevronLeft size={14} strokeWidth={1.8} />
             </button>
             <span className={styles.monthLabel}>{formatMonthCapitalized(month)}</span>
-            <button className={styles.chevron} onClick={() => setMonth(m => addMonths(m, 1))}>
+            <button className={styles.chevron} onClick={() => handleMonthChange(1)}>
               <ChevronRight size={14} strokeWidth={1.8} />
             </button>
           </div>
@@ -78,7 +88,10 @@ export default function MonthHistory() {
       </div>
 
       <div className={styles.quinzenaCards}>
-        <div className={styles.summaryCard}>
+        <button
+          className={`${styles.summaryCard} ${activeQ === 1 ? styles.summaryCardActive : ''}`}
+          onClick={() => toggleQ(1)}
+        >
           <span className={styles.summaryEyebrow}>1ª QUINZENA · 1–15</span>
           <span className={styles.summaryValue}>{formatCurrency(q1.total_liquid)}</span>
           <div className={styles.summaryStats}>
@@ -95,8 +108,12 @@ export default function MonthHistory() {
               <span className={styles.summaryStatLabel}>COMBUST.</span>
             </div>
           </div>
-        </div>
-        <div className={styles.summaryCard}>
+        </button>
+
+        <button
+          className={`${styles.summaryCard} ${activeQ === 2 ? styles.summaryCardActive : ''}`}
+          onClick={() => toggleQ(2)}
+        >
           <span className={styles.summaryEyebrow}>2ª QUINZENA · 16–30</span>
           <span className={styles.summaryValue}>{formatCurrency(q2.total_liquid)}</span>
           <div className={styles.summaryStats}>
@@ -113,13 +130,15 @@ export default function MonthHistory() {
               <span className={styles.summaryStatLabel}>COMBUST.</span>
             </div>
           </div>
-        </div>
+        </button>
       </div>
 
       <div className={styles.sectionHeader}>
-        <span className={styles.sectionLabel}>DIAS DO MÊS</span>
+        <span className={styles.sectionLabel}>
+          {activeQ === 0 ? 'DIAS DO MÊS' : activeQ === 1 ? '1ª QUINZENA · DIAS' : '2ª QUINZENA · DIAS'}
+        </span>
         {!isLoading && !isError && (
-          <span className={styles.sectionCount}>{days.length} com rotas</span>
+          <span className={styles.sectionCount}>{visibleDays.length} com rotas</span>
         )}
       </div>
 
@@ -132,74 +151,39 @@ export default function MonthHistory() {
         ) : isError ? (
           <div className={styles.feedback}>
             <span className={styles.errorMsg}>Erro ao carregar dados.</span>
-            <button
-              className={styles.retryBtn}
-              onClick={() => { refetchSummary(); refetchDays(); }}
-            >
+            <button className={styles.retryBtn} onClick={() => refetch()}>
               Tentar novamente
             </button>
           </div>
-        ) : days.length === 0 ? (
-          <div className={styles.empty}>Nenhuma rota neste mês</div>
+        ) : visibleDays.length === 0 ? (
+          <div className={styles.empty}>Nenhuma rota neste período</div>
         ) : (
-          (() => {
-            const q1 = days.filter(d => Number(String(d.day).slice(8, 10)) <= 15);
-            const q2 = days.filter(d => Number(String(d.day).slice(8, 10)) > 15);
-            const q1Total = q1.reduce((s, d) => s + Number(d.total_liquid), 0);
-            const q2Total = q2.reduce((s, d) => s + Number(d.total_liquid), 0);
-
-            function renderDay(day) {
-              const { weekday, day: dayNum, month: monthAbbr, isToday } = formatDayStr(day.day);
-              return (
-                <div
-                  key={day.day}
-                  className={styles.dayRow}
-                  onClick={() => navigate(`/?date=${String(day.day).slice(0, 10)}`)}
-                >
-                  <div className={`${styles.dateBadge} ${isToday ? styles.dateBadgeToday : ''}`}>
-                    <span className={styles.badgeLabel}>{weekday.toUpperCase()}</span>
-                    <span className={styles.badgeNum}>{dayNum}</span>
-                  </div>
-                  <div className={styles.dayContent}>
-                    <div className={styles.dayNameRow}>
-                      <span className={styles.dayName}>{weekday}-feira, {dayNum} {monthAbbr}</span>
-                      {isToday && <span className={styles.todayBadge}>hoje</span>}
-                    </div>
-                    <span className={styles.dayDetail}>
-                      {day.total_routes} {day.total_routes === 1 ? 'rota' : 'rotas'} · {formatNumber(day.total_km, 0)} km
-                    </span>
-                  </div>
-                  <span className={styles.dayValue}>{formatCurrency(day.total_liquid)}</span>
-                  <ChevronRight size={12} strokeWidth={1.8} color="var(--ink-4)" />
-                </div>
-              );
-            }
-
+          visibleDays.map((day) => {
+            const { weekday, day: dayN, month: monthAbbr, isToday } = formatDayStr(day.day);
             return (
-              <>
-                {q1.length > 0 && (
-                  <>
-                    <div className={styles.quinzenaHeader}>
-                      <span className={styles.quinzenaLabel}>1ª Quinzena · 1 – 15</span>
-                      <span className={styles.quinzenaTotal}>{formatCurrency(q1Total)}</span>
-                    </div>
-                    <div className={styles.quinzenaDivider} />
-                    {q1.map(renderDay)}
-                  </>
-                )}
-                {q2.length > 0 && (
-                  <>
-                    <div className={styles.quinzenaHeader}>
-                      <span className={styles.quinzenaLabel}>2ª Quinzena · 16 – 30</span>
-                      <span className={styles.quinzenaTotal}>{formatCurrency(q2Total)}</span>
-                    </div>
-                    <div className={styles.quinzenaDivider} />
-                    {q2.map(renderDay)}
-                  </>
-                )}
-              </>
+              <div
+                key={day.day}
+                className={styles.dayRow}
+                onClick={() => navigate(`/?date=${String(day.day).slice(0, 10)}`)}
+              >
+                <div className={`${styles.dateBadge} ${isToday ? styles.dateBadgeToday : ''}`}>
+                  <span className={styles.badgeLabel}>{weekday.toUpperCase()}</span>
+                  <span className={styles.badgeNum}>{dayN}</span>
+                </div>
+                <div className={styles.dayContent}>
+                  <div className={styles.dayNameRow}>
+                    <span className={styles.dayName}>{weekday}-feira, {dayN} {monthAbbr}</span>
+                    {isToday && <span className={styles.todayBadge}>hoje</span>}
+                  </div>
+                  <span className={styles.dayDetail}>
+                    {day.total_routes} {day.total_routes === 1 ? 'rota' : 'rotas'} · {formatNumber(day.total_km, 0)} km
+                  </span>
+                </div>
+                <span className={styles.dayValue}>{formatCurrency(day.total_liquid)}</span>
+                <ChevronRight size={12} strokeWidth={1.8} color="var(--ink-4)" />
+              </div>
             );
-          })()
+          })
         )}
       </div>
 

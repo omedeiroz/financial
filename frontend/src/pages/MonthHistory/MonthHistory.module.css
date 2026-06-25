@@ -75,6 +75,14 @@
   border-radius: var(--radius-xl);
   padding: 12px;
   min-width: 0;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.summaryCardActive {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(226, 97, 68, 0.2);
 }
 
 .summaryEyebrow {
