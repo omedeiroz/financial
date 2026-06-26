@@ -112,9 +112,13 @@ export default function MonthHistory() {
 
       {/* ── Hero ── */}
       <div className={styles.hero} key={month}>
-        <span className={styles.heroEyebrow}>VALOR LÍQUIDO DO MÊS</span>
+        <span className={styles.heroEyebrow}>
+          {activeQ === 1 ? 'VALOR LÍQUIDO · 1ª QUINZENA' : activeQ === 2 ? 'VALOR LÍQUIDO · 2ª QUINZENA' : 'VALOR LÍQUIDO DO MÊS'}
+        </span>
         <div className={styles.heroRow}>
-          <span className={styles.heroValue}>{formatCurrency(currTotal)}</span>
+          <span className={styles.heroValue}>
+            {formatCurrency(activeQ === 1 ? q1.total_liquid : activeQ === 2 ? q2.total_liquid : currTotal)}
+          </span>
           {deltaPct !== null && (
             <div className={styles.heroDelta}>
               <span
@@ -157,7 +161,7 @@ export default function MonthHistory() {
               onClick={() => setActiveQ(prev => prev === q ? 0 : q)}
             >
               <span className={styles.qEyebrow}>{q === 1 ? '1ª QUINZENA' : '2ª QUINZENA'}</span>
-              <span className={styles.qValue}>{formatCurrencyShort(qd.total_liquid)}</span>
+              <span className={styles.qValue}>{formatCurrency(qd.total_liquid)}</span>
               <div className={styles.qBar}>
                 <div className={styles.qBarFill} style={{ width: `${pct}%` }} />
               </div>
