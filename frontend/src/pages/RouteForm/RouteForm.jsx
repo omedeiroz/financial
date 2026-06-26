@@ -129,8 +129,7 @@ export default function RouteForm() {
             className={styles.inputDate}
             type="date"
             value={form.day}
-            max={new Date().toISOString().slice(0, 10)}
-            onChange={(e) => set('day', e.target.value)}
+onChange={(e) => set('day', e.target.value)}
           />
         </div>
 
