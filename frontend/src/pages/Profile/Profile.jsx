@@ -117,28 +117,32 @@ export default function Profile() {
     queryFn: () => api.getYearlySummary(year, 2),
   });
 
-  const monthlyData = Array.from({ length: 12 }, (_, i) => {
+  const combinedData = Array.from({ length: 12 }, (_, i) => {
     const m = String(i + 1).padStart(2, '0');
     const key = `${year}-${m}`;
     const q1 = yearlyQ1.find(r => r.month === key);
     const q2 = yearlyQ2.find(r => r.month === key);
-
-    if (chartQ === 1) {
-      return { month: key, label: MONTH_NAMES[i], ...(q1 || { total_liquid: 0, total_routes: 0, total_km: 0 }) };
-    }
-    if (chartQ === 2) {
-      return { month: key, label: MONTH_NAMES[i], ...(q2 || { total_liquid: 0, total_routes: 0, total_km: 0 }) };
-    }
     return {
       month: key,
       label: MONTH_NAMES[i],
-      total_liquid: (q1?.total_liquid || 0) + (q2?.total_liquid || 0),
-      total_routes: (q1?.total_routes || 0) + (q2?.total_routes || 0),
-      total_km:     (q1?.total_km     || 0) + (q2?.total_km     || 0),
+      q1Liquid:     Number(q1?.total_liquid || 0),
+      q2Liquid:     Number(q2?.total_liquid || 0),
+      q1Routes:     Number(q1?.total_routes || 0),
+      q2Routes:     Number(q2?.total_routes || 0),
+      total_liquid: Number(q1?.total_liquid || 0) + Number(q2?.total_liquid || 0),
+      total_routes: Number(q1?.total_routes || 0) + Number(q2?.total_routes || 0),
+      total_km:     Number(q1?.total_km     || 0) + Number(q2?.total_km     || 0),
     };
   });
 
-  const maxLiquid = Math.max(...monthlyData.map(m => m.total_liquid), 1);
+  // maxLiquid always uses the combined total so bar heights change visibly when filtering
+  const maxLiquid = Math.max(...combinedData.map(m => m.total_liquid), 1);
+
+  const monthlyData = combinedData.map(d => ({
+    ...d,
+    total_liquid: chartQ === 1 ? d.q1Liquid : chartQ === 2 ? d.q2Liquid : d.total_liquid,
+    total_routes: chartQ === 1 ? d.q1Routes : chartQ === 2 ? d.q2Routes : d.total_routes,
+  }));
 
   async function handleExport() {
     if (!exportQ1 && !exportQ2) return;
