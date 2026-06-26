@@ -8,6 +8,7 @@ import styles from './RouteForm.module.css';
 const BACKUP_VALUE = 140;
 
 const empty = {
+  day: new Date().toISOString().slice(0, 10),
   name: '',
   km_initial: '',
   km_final: '',
@@ -30,12 +31,14 @@ export default function RouteForm() {
   const createRoute = useCreateRoute();
   const updateRoute = useUpdateRoute(id);
 
-  const [form, setForm] = useState(empty);
+  const initialDay = searchParams.get('date') || new Date().toISOString().slice(0, 10);
+  const [form, setForm] = useState({ ...empty, day: initialDay });
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (existing) {
       setForm({
+        day: String(existing.day).slice(0, 10),
         name: existing.name,
         km_initial: existing.km_initial,
         km_final: existing.km_final,
@@ -77,9 +80,8 @@ export default function RouteForm() {
     const e = validate();
     if (Object.keys(e).length) { setErrors(e); return; }
 
-    const day = isEdit ? existing.day : searchParams.get('date') || new Date().toISOString().slice(0, 10);
     const payload = {
-      day,
+      day: form.day,
       name: form.name.trim(),
       km_initial: Number(form.km_initial) || 0,
       km_final: Number(form.km_final) || 0,
@@ -102,17 +104,11 @@ export default function RouteForm() {
     }
   }
 
-  const date = isEdit
-    ? existing?.day
-    : searchParams.get('date') || new Date().toISOString().slice(0, 10);
-
-  const dateLabel = date
-    ? (() => {
-        const [, m, d] = String(date).slice(0, 10).split('-');
-        const months = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
-        return `${d} ${months[parseInt(m, 10) - 1]}`;
-      })()
-    : '';
+  const dateLabel = (() => {
+    const [, m, d] = form.day.split('-');
+    const months = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+    return `${d} ${months[parseInt(m, 10) - 1]}`;
+  })();
 
   const loading = createRoute.isPending || updateRoute.isPending;
 
@@ -127,6 +123,17 @@ export default function RouteForm() {
       </div>
 
       <div className={styles.form}>
+        <div className={styles.field}>
+          <label className={styles.label}>Data</label>
+          <input
+            className={styles.inputDate}
+            type="date"
+            value={form.day}
+            max={new Date().toISOString().slice(0, 10)}
+            onChange={(e) => set('day', e.target.value)}
+          />
+        </div>
+
         <div className={styles.field}>
           <label className={styles.label}>Nome da rota</label>
           <input
