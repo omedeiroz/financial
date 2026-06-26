@@ -107,16 +107,35 @@ export default function Profile() {
     queryFn: api.getAlltimeSummary,
   });
 
-  const { data: yearly = [] } = useQuery({
-    queryKey: ['yearly-summary', year, chartQ],
-    queryFn: () => api.getYearlySummary(year, chartQ || undefined),
+  const { data: yearlyQ1 = [] } = useQuery({
+    queryKey: ['yearly-summary', year, 1],
+    queryFn: () => api.getYearlySummary(year, 1),
+  });
+
+  const { data: yearlyQ2 = [] } = useQuery({
+    queryKey: ['yearly-summary', year, 2],
+    queryFn: () => api.getYearlySummary(year, 2),
   });
 
   const monthlyData = Array.from({ length: 12 }, (_, i) => {
     const m = String(i + 1).padStart(2, '0');
     const key = `${year}-${m}`;
-    const found = yearly.find(r => r.month === key);
-    return { month: key, label: MONTH_NAMES[i], ...(found || { total_liquid: 0, total_routes: 0, total_km: 0 }) };
+    const q1 = yearlyQ1.find(r => r.month === key);
+    const q2 = yearlyQ2.find(r => r.month === key);
+
+    if (chartQ === 1) {
+      return { month: key, label: MONTH_NAMES[i], ...(q1 || { total_liquid: 0, total_routes: 0, total_km: 0 }) };
+    }
+    if (chartQ === 2) {
+      return { month: key, label: MONTH_NAMES[i], ...(q2 || { total_liquid: 0, total_routes: 0, total_km: 0 }) };
+    }
+    return {
+      month: key,
+      label: MONTH_NAMES[i],
+      total_liquid: (q1?.total_liquid || 0) + (q2?.total_liquid || 0),
+      total_routes: (q1?.total_routes || 0) + (q2?.total_routes || 0),
+      total_km:     (q1?.total_km     || 0) + (q2?.total_km     || 0),
+    };
   });
 
   const maxLiquid = Math.max(...monthlyData.map(m => m.total_liquid), 1);
