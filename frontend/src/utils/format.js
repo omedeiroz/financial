@@ -59,6 +59,12 @@ export function toMonthStr(date) {
   return `${y}-${m}`;
 }
 
+export function formatCurrencyShort(value) {
+  const n = Number(value) || 0;
+  if (n >= 1000) return 'R$ ' + (n / 1000).toFixed(1).replace('.', ',') + 'k';
+  return 'R$ ' + Math.round(n).toLocaleString('pt-BR');
+}
+
 export function calcFinalValue({ route_value, has_backup, backup_value, gnv_cost, gasoline_cost }) {
   const base = Number(route_value) + (has_backup ? Number(backup_value) : 0);
   return (base * 0.875) - Number(gnv_cost) - Number(gasoline_cost);
