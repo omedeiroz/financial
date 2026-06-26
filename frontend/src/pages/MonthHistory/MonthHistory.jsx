@@ -115,7 +115,7 @@ export default function MonthHistory() {
         </span>
         <div className={styles.heroRow}>
           <span className={styles.heroValue}>
-            {formatCurrency(activeQ === 1 ? q1.total_liquid : activeQ === 2 ? q2.total_liquid : currTotal)}
+            {formatCurrency(activeQ === 1 ? q1.total_liquid : activeQ === 2 ? q2.total_liquid : q1.total_liquid + q2.total_liquid)}
           </span>
           {deltaPct !== null && (
             <div className={styles.heroDelta}>
