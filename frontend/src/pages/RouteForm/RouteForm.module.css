@@ -42,6 +42,31 @@
   color: var(--ink-4);
 }
 
+.datePill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.datePillInput {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
 .form {
   flex: 1;
   overflow-y: auto;
@@ -127,24 +152,6 @@
   width: 64px;
 }
 
-.inputDate {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 12px 14px;
-  font-size: 14px;
-  font-family: var(--font-mono);
-  color: var(--ink-1);
-  width: 100%;
-  color-scheme: light dark;
-  cursor: pointer;
-  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
-}
-
-.inputDate:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(226, 97, 68, 0.15);
-}
 
 .inputPrefix {
   position: relative;

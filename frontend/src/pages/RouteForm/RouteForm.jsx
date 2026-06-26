@@ -119,20 +119,18 @@ export default function RouteForm() {
           <ChevronLeft size={15} strokeWidth={1.8} color="var(--ink-2)" />
         </button>
         <span className={styles.title}>{isEdit ? 'Editar rota' : 'Nova rota'}</span>
-        <span className={styles.dateLabel}>{dateLabel}</span>
+        <label className={styles.datePill}>
+          {dateLabel}
+          <input
+            type="date"
+            value={form.day}
+            onChange={(e) => set('day', e.target.value)}
+            className={styles.datePillInput}
+          />
+        </label>
       </div>
 
       <div className={styles.form}>
-        <div className={styles.field}>
-          <label className={styles.label}>Data</label>
-          <input
-            className={styles.inputDate}
-            type="date"
-            value={form.day}
-onChange={(e) => set('day', e.target.value)}
-          />
-        </div>
-
         <div className={styles.field}>
           <label className={styles.label}>Nome da rota</label>
           <input
