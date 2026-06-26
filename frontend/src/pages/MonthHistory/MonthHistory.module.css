@@ -67,7 +67,7 @@
 
 /* ── Hero ── */
 .hero {
-  padding: 20px 20px 16px;
+  padding: 12px 20px 10px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
   animation: fadeUp 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -81,24 +81,24 @@
 .heroEyebrow {
   display: block;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 9px;
   text-transform: uppercase;
   color: var(--ink-4);
   letter-spacing: 0.08em;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .heroRow {
   display: flex;
   align-items: flex-end;
-  gap: 12px;
-  margin-bottom: 10px;
+  gap: 10px;
+  margin-bottom: 8px;
 }
 
 .heroValue {
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: 42px;
+  font-size: 32px;
   line-height: 1;
   color: var(--ok);
   letter-spacing: -0.02em;
@@ -107,19 +107,19 @@
 .heroDelta {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding-bottom: 4px;
+  gap: 1px;
+  padding-bottom: 3px;
 }
 
 .heroDeltaNum {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 0.03em;
 }
 
 .heroDeltaLabel {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 9px;
   color: var(--ink-4);
   letter-spacing: 0.04em;
 }
@@ -129,16 +129,16 @@
   display: flex;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
 }
 
 .statCol {
   flex: 1;
-  padding: 10px 12px;
+  padding: 7px 10px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .statColBorder {
@@ -147,7 +147,7 @@
 
 .statNum {
   font-family: var(--font-mono);
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--ink-1);
 }
@@ -158,7 +158,7 @@
 
 .statLabel {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 8px;
   text-transform: uppercase;
   color: var(--ink-4);
   letter-spacing: 0.06em;
@@ -168,7 +168,7 @@
 .quinzenaCards {
   display: flex;
   gap: 6px;
-  padding: 10px 16px 0;
+  padding: 8px 16px 0;
   flex-shrink: 0;
 }
 
@@ -178,8 +178,8 @@
   overflow: hidden;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 10px;
+  border-radius: 12px;
+  padding: 10px 10px 8px;
   text-align: left;
   cursor: pointer;
   transition: border-color 120ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -192,44 +192,29 @@
 .qEyebrow {
   display: block;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 8px;
   text-transform: uppercase;
   color: var(--ink-4);
   letter-spacing: 0.08em;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 
 .qValue {
   display: block;
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: clamp(13px, 3.8vw, 17px);
+  font-size: clamp(12px, 3.5vw, 15px);
   color: var(--ok);
-  line-height: 1.15;
-  margin-bottom: 8px;
+  line-height: 1.2;
+  margin-bottom: 6px;
   letter-spacing: -0.01em;
   word-break: break-word;
-}
-
-.qBar {
-  height: 3px;
-  background: var(--border);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-
-.qBarFill {
-  height: 100%;
-  background: var(--ok);
-  border-radius: 2px;
-  transition: width 280ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .qStats {
   display: flex;
   border-top: 1px solid var(--border);
-  padding-top: 8px;
+  padding-top: 6px;
 }
 
 .qStat {
@@ -255,7 +240,7 @@
 .qStatLabel {
   display: block;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 8px;
   text-transform: uppercase;
   color: var(--ink-4);
   margin-top: 1px;
@@ -263,7 +248,7 @@
 
 /* ── Section Header ── */
 .sectionHeader {
-  padding: 14px 20px 8px;
+  padding: 10px 20px 6px;
   display: flex;
   justify-content: space-between;
   align-items: center;

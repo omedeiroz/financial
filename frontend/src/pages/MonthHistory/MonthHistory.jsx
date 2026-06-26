@@ -52,8 +52,6 @@ export default function MonthHistory() {
   // ── Quinzena summaries ─────────────────────────────────────
   const q1 = quinzenaSummary(days, 1);
   const q2 = quinzenaSummary(days, 2);
-  const maxQ = Math.max(q1.total_liquid, q2.total_liquid, 1);
-
   // ── Visible days ───────────────────────────────────────────
   const visibleDays = activeQ === 0 ? days
     : activeQ === 1 ? days.filter(d => dayNumOf(d.day) <= 15)
@@ -152,8 +150,7 @@ export default function MonthHistory() {
       {/* ── Quinzena Cards ── */}
       <div className={styles.quinzenaCards}>
         {[1, 2].map(q => {
-          const qd  = q === 1 ? q1 : q2;
-          const pct = Math.round((qd.total_liquid / maxQ) * 100);
+          const qd = q === 1 ? q1 : q2;
           return (
             <button
               key={q}
@@ -162,9 +159,6 @@ export default function MonthHistory() {
             >
               <span className={styles.qEyebrow}>{q === 1 ? '1ª QUINZENA' : '2ª QUINZENA'}</span>
               <span className={styles.qValue}>{formatCurrency(qd.total_liquid)}</span>
-              <div className={styles.qBar}>
-                <div className={styles.qBarFill} style={{ width: `${pct}%` }} />
-              </div>
               <div className={styles.qStats}>
                 <div className={styles.qStat}>
                   <span className={styles.qStatNum}>{qd.total_routes}</span>
